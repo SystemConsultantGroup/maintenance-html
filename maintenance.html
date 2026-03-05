@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Maintenance | SCG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030509;
+            --panel-bg: rgba(10, 15, 26, 0.6);
+            --panel-border: rgba(65, 120, 255, 0.15);
+            --accent-glow: rgba(65, 120, 255, 0.3);
+            --primary: #52a8ff;
+            --text-main: #f0f6ff;
+            --text-muted: #8a9bb3;
+            --ok: #34d399;
+            --warn: #fbbf24;
+            --mono: "IBM Plex Mono", monospace;
+            --sans: "SUIT", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text-main);
+            font-family: var(--sans);
+            background-color: var(--bg-base);
+            /* Complex backdrop */
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(30, 45, 80, 0.4), transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(20, 35, 65, 0.3), transparent 50%);
+            display: grid;
+            place-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated grid overlay */
+        .moving-grid {
+            position: absolute;
+            inset: -50%;
+            background-size: 60px 60px;
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            transform: perspective(600px) rotateX(45deg) translateY(-50px) translateZ(-200px);
+            animation: grid-move 20s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes grid-move {
+            0% {
+                transform: perspective(600px) rotateX(45deg) translateY(0) translateZ(-200px);
+            }
+
+            100% {
+                transform: perspective(600px) rotateX(45deg) translateY(60px) translateZ(-200px);
+            }
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.15;
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-30%, -30%);
+            }
+
+            100% {
+                transform: translate(30%, 30%);
+            }
+        }
+
+        .board {
+            width: 100%;
+            max-width: 800px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 40px var(--accent-glow);
+            overflow: hidden;
+            animation: entrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes entrance {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .board-header {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .left-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .dot.warn {
+            color: var(--warn);
+        }
+
+        .dot.ok {
+            color: var(--ok);
+            animation: breathe 2s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 16px var(--ok);
+            }
+        }
+
+        .board-body {
+            padding: 3.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .main-message {
+            text-align: center;
+        }
+
+        h1 {
+            font-family: var(--sans);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a2c8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .progress-container {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 30%;
+            background: linear-gradient(90deg, #1d4ed8, #52a8ff, #93c5fd);
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--primary);
+            animation: loading-bar 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes loading-bar {
+            0% {
+                transform: translateX(-150%);
+            }
+
+            100% {
+                transform: translateX(350%);
+            }
+        }
+
+        .console-output {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            color: var(--primary);
+            opacity: 0.9;
+            margin-top: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .console-output::before {
+            content: ">_";
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .typing-text {
+            border-right: 2px solid var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .foot {
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .foot-logo {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .board-header {
+                padding: 1.25rem;
+            }
+
+            .board-body {
+                padding: 2.5rem 1.25rem;
+            }
+
+            .progress-container {
+                padding: 1.25rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .foot {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .ambient-glow {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="moving-grid"></div>
+    <div class="ambient-glow"></div>
+
+    <main class="board">
+        <header class="board-header">
+            <div class="left-group">
+                <div class="status-indicators">
+                    <div class="dot"
+                        style="color:#ff5f56; background:#ff5f56; box-shadow: 0 0 8px rgba(255, 95, 86, 0.4);"></div>
+                    <div class="dot"
+                        style="color:#ffbd2e; background:#ffbd2e; box-shadow: 0 0 8px rgba(255, 189, 46, 0.4);"></div>
+                    <div class="dot"
+                        style="color:#27c93f; background:#27c93f; box-shadow: 0 0 12px rgba(39, 201, 63, 0.6); animation: breathe 2s ease-in-out infinite;">
+                    </div>
+                </div>
+                <span>SCG</span>
+            </div>
+            <span id="clock" style="color:var(--ok); font-weight: 500; font-size: 0.8rem;">SYNCING...</span>
+        </header>
+
+        <section class="board-body">
+            <div class="main-message">
+                <h1
+                    style="background: linear-gradient(135deg, #ffffff 0%, #60a5fa 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(96, 165, 250, 0.2));">
+                    서비스 점검 중입니다</h1>
+                <p class="lead"
+                    style="font-family: var(--sans); font-size: 1.1rem; line-height: 1.6; color: rgba(220, 235, 255, 0.8);">
+                    더 안정적인 서비스를 제공하기 위해 서버 점검 및 최적화 작업을 진행하고 있습니다.<br>이용에 불편을 드려 대단히 죄송합니다.</p>
+            </div>
+
+            <div class="progress-container"
+                style="background: rgba(4, 7, 13, 0.95); border: 2px solid rgba(65, 120, 255, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 40px rgba(65, 120, 255, 0.05); position: relative; overflow: hidden; padding: 1.5rem 1.8rem;">
+                <!-- CRT Scanline Effect -->
+                <div
+                    style="position: absolute; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1;">
+                </div>
+
+                <div class="progress-header"
+                    style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.8rem; margin-bottom: 1.5rem; display: flex; align-items: center; position: relative; z-index: 2;">
+                    <div class="status-indicators" style="margin-right: 12px; transform: scale(0.85); opacity: 0.5;">
+                        <div class="dot" style="background: #fff; width:8px; height:8px; box-shadow: none;"></div>
+                        <div class="dot" style="background: #fff; width:8px; height:8px; box-shadow: none;"></div>
+                        <div class="dot" style="background: #fff; width:8px; height:8px; box-shadow: none;"></div>
+                    </div>
+                    <span
+                        style="font-family: var(--mono); color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: lowercase;">terminal
+                        — admin@scg</span>
+                </div>
+
+                <div style="position: relative; z-index: 2;">
+                    <div class="console-output"
+                        style="margin-top: 0; margin-bottom: 1.5rem; color: #34d399; text-shadow: 0 0 8px rgba(52, 211, 153, 0.6); display: block; font-size: 1rem;">
+                        <span style="color: #60a5fa; font-weight: 600; margin-right: 8px;">admin@scg:~$</span>
+                        <span class="typing-text" id="typer">초기화 중...</span>
+                    </div>
+
+                    <div
+                        style="font-family: var(--mono); font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-bottom: 0.8rem; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.05em;">
+                    </div>
+                    <div class="progress-track"
+                        style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                        <div class="progress-fill"
+                            style="background: linear-gradient(90deg, #34d399, #10b981); box-shadow: 0 0 15px rgba(52, 211, 153, 0.6); border-radius: 3px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="foot">
+            <span style="opacity: 0.6;">SUNGKYUNKWAN UNIVERSITY / <span class="foot-logo"
+                    style="opacity: 1;">SCG</span></span>
+            <span style="opacity: 0.6;">&copy; <span id="year"></span> All rights reserved.</span>
+        </footer>
+    </main>
+
+    <script>
+        // Clock sync
+        const clock = document.getElementById("clock");
+        const pad = (n) => String(n).padStart(2, "0");
+
+        setInterval(() => {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = pad(now.getMonth() + 1);
+            const dd = pad(now.getDate());
+            const hh = pad(now.getHours());
+            const min = pad(now.getMinutes());
+            const ss = pad(now.getSeconds());
+            clock.textContent = `${yyyy}.${mm}.${dd} ${hh}:${min}:${ss} KST`;
+        }, 1000);
+
+        // Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Terminal typing effect
+        const phrases = [
+            "데이터 포장중...",
+            "서버 상태 확인중...",
+            "카페인 수혈중...",
+            "밤샘 작업중...",
+            "서버가 고장났어요...",
+            "열심히 고치는 중...",
+            "서버를 옮기는 중...",
+            "물 마시는 중..."
+        ];
+
+        let index = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typer = document.getElementById("typer");
+
+        function type() {
+            const current = phrases[index];
+            if (isDeleting) {
+                typer.textContent = current.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typer.textContent = current.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 30 : 80; // slightly faster typing
+
+            if (!isDeleting && charIndex === current.length) {
+                typeSpeed = 2500; // Pause at the end of word
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                index = (index + 1) % phrases.length;
+                typeSpeed = 400; // Pause before typing next word
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        setTimeout(type, 1000);
+    </script>
+</body>
+
+</html>
