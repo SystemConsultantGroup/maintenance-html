@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Maintenance | SCG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --accent-dead: #f43f5e;
+            --accent-maint: #6366f1;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'SUIT', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 70vmax;
+            height: 70vmax;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            opacity: 0.15;
+            transition: background 1s ease;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            max-height: 92vh;
+            z-index: 10;
+            text-align: center;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: clamp(1.5rem, 4vh, 3rem) 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s ease forwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-badge {
+            display: none;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--badge-bg);
+            color: white;
+            margin-bottom: clamp(0.8rem, 2vh, 1.6rem);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .hero-image {
+            max-width: 480px;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            max-height: clamp(180px, 30vh, 320px);
+            height: auto;
+            object-fit: contain;
+            border-radius: 24px;
+            margin: 0 auto clamp(0.9rem, 2.2vh, 1.8rem);
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: clamp(0.5rem, 1.4vh, 0.9rem);
+            letter-spacing: -0.01em;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto clamp(0.8rem, 2vh, 1.8rem);
+        }
+
+        .cta-link {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .cta-link:hover {
+            opacity: 1;
+            color: var(--accent-maint);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .hero-image {
+                max-height: 26vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ambient" class="ambient-glow"></div>
+
+    <main class="container">
+        <img id="hero" src="" alt="Maintenance Status" class="hero-image">
+        <h1 id="title">Loading...</h1>
+        <p id="desc" class="description"></p>
+
+        <div style="margin-top: 1rem;">
+            <a href="https://scg.skku.ac.kr" class="cta-link">SCG에 문의하기 →</a>
+        </div>
+    </main>
+
+    <script>
+        const images = [
+            "resources/server_dead_1_obinox.png",
+            "resources/server_maintanance_1_obinox.png"
+        ];
+        const text = "시스템 최적화 진행중";
+        const wittyDesc = "서버가 성능 PT 받는 중입니다. 숨 고르고 더 빠른 모습으로 곧 돌아오겠습니다.";
+        const selectedImage = images[Math.floor(Math.random() * images.length)];
+
+        document.documentElement.style.setProperty('--glow-color', "rgba(99, 102, 241, 0.4)");
+        document.documentElement.style.setProperty('--badge-bg', 'var(--accent-maint)');
+
+        document.getElementById('hero').src = selectedImage;
+        document.getElementById('title').textContent = text;
+        document.getElementById('desc').textContent = wittyDesc;
+    </script>
+</body>
+
+</html>
