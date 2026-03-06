@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Maintenance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-accent: #c7d2fe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'SUIT', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Shadows */
+        .ambient-glow {
+            position: absolute;
+            width: 60vmax;
+            height: 60vmax;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            top: -20%;
+            left: -10%;
+            z-index: 0;
+            animation: pulse 15s ease-in-out infinite alternate;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            width: 50vmax;
+            height: 50vmax;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            bottom: -10%;
+            right: -5%;
+            z-index: 0;
+            animation: pulse 12s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1.1) translate(5%, 5%);
+            }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Image Styling */
+        .hero-section {
+            position: relative;
+        }
+
+        .hero-image-container {
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: auto;
+            border-radius: 32px;
+            filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.5));
+            transition: transform 0.3s ease;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(2deg);
+            }
+        }
+
+        .badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--accent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+            transform: rotate(12deg);
+        }
+
+        /* Content Styling */
+        .content-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.1em;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to bottom right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Status Cards */
+        .status-container {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+        }
+
+        .status-item:not(:last-child) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-light);
+            font-size: 1.2rem;
+        }
+
+        .status-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .status-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--text-accent);
+        }
+
+        /* Witty Terminal */
+        .terminal-mimic {
+            margin-top: 1rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-mimic span::before {
+            content: "> ";
+            color: var(--text-secondary);
+        }
+
+        /* Inquiry Link */
+        .cta-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .cta-link {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.6;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .cta-link:hover {
+            opacity: 1;
+            color: var(--accent-light);
+        }
+
+        .cta-link svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .cta-link:hover svg {
+            transform: translateX(2px);
+        }
+
+        .cursor {
+            width: 8px;
+            height: 1.2em;
+            background-color: #10b981;
+            display: inline-block;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+                padding-bottom: 6rem;
+            }
+
+            .hero-section {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+
+            .status-item {
+                text-align: left;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-2"></div>
+
+    <main class="container">
+        <section class="hero-section">
+            <div class="hero-image-container">
+                <img src="resources/gemini_geek1.png" alt="Geeky Gemini" class="hero-image">
+                <div class="badge">MAINTENANCE</div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="logo">Maintenance Mode</div>
+            <h1>서버가 잠시<br>커피 마시러 갔어요</h1>
+            <p class="description">
+                더 똑똑하고 빠른 서비스를 준비하고 있습니다.<br>
+                SCG가 열심히 코드를 깎고 있으니 잠시만 기다려주세요!
+            </p>
+
+            <div class="status-container">
+                <div class="status-item">
+                    <div class="status-icon">☕</div>
+                    <div class="status-text">
+                        <span class="status-label">Current Progress</span>
+                        <span class="status-value">최적화 작업 진행 중 (82%)</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">⚡</div>
+                    <div class="status-text">
+                        <span class="status-label">System Status</span>
+                        <span class="status-value">카페인 수혈 완료, 데이터 이사 중</span>
+                    </div>
+                </div>
+
+                <div class="terminal-mimic">
+                    <span id="typer">초기화 중...</span>
+                    <div class="cursor"></div>
+                </div>
+            </div>
+
+            <div class="cta-container">
+                <a href="https://scg.skku.ac.kr" class="cta-link">
+                    <span>SCG로 문의하기</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; <span id="year"></span> SCG Consultant Group. All rights reserved.
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const phrases = [
+            "데이터 베이스 빗질 중...",
+            "서버 길들이는 중...",
+            "버그들 퇴거 조치 중...",
+            "먼지 쌓인 코드 털어내는 중...",
+            "Gemini에게 간식 조공 중...",
+            "인공지능 자아 성찰 중...",
+            "서버실 에어컨 가동 중...",
+            "마지막 한 줄의 코드 수정 중..."
+        ];
+
+        let index = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typer = document.getElementById("typer");
+
+        function type() {
+            const current = phrases[index];
+            if (isDeleting) {
+                typer.textContent = current.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typer.textContent = current.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 40 : 100;
+
+            if (!isDeleting && charIndex === current.length) {
+                typeSpeed = 3000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                index = (index + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        setTimeout(type, 1000);
+
+        // Subtle parallax effect for the hero image
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            const hero = document.querySelector('.hero-image');
+            if (hero) {
+                hero.style.transform = `translate(${moveX}px, ${moveY}px) translateY(-15px) rotate(2deg)`;
+            }
+        });
+    </script>
+</body>
+
+</html>
